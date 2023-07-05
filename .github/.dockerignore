@@ -1,0 +1,4 @@
+#Ignore everything except the src files
+*
+!src 
+!pom.xml
