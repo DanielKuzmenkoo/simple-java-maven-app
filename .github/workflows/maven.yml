@@ -27,7 +27,7 @@ jobs:
           restore-keys: ${{ runner.os }}-m2
 
       - name: Bump version and push the tag
-        id: bump_version
+        id: tag_action
         uses: anothrNick/github-tag-action@1.64.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -39,11 +39,11 @@ jobs:
      
 
       - name: Set tag version as environment variable
-        run: echo "TAG_VERSION=${{ steps.bump_version.outputs.new_tag }}" >> $GITHUB_ENV
+        run: echo "TAG_VERSION=${{ steps.tag_action.outputs.new_tag }}" >> $GITHUB_ENV
 
       - name: Update version in pom.xml
         run: |
-          mvn versions:set -DnewVersion=${{ steps.bump_version.outputs.new_tag }}
+          mvn versions:set -DnewVersion=${{ steps.tag_action.outputs.new_tag }}
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git commit -a -m "Update version in pom.xml" --author='github-actions[bot] <github-actions[bot]@users.noreply.github.com>'
@@ -68,7 +68,7 @@ jobs:
           context: .
           push: false
           load: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app:${{ steps.bump_version.outputs.new_tag }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app:${{ steps.tag_action.outputs.new_tag }}
 
       - name: Test Docker the docker image
         run: |
@@ -83,7 +83,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app::${{ steps.bump_version.outputs.new_tag }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app::${{ steps.tag_action.outputs.new_tag }}
 
       - name: Create PR to master (deployment) branch
         if: success()
