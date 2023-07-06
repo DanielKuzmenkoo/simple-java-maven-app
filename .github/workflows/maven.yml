@@ -68,11 +68,11 @@ jobs:
           context: .
           push: false
           load: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app:${{ steps.bump_version.outputs.new_tag }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/maven-app:${{ steps.bump_version.outputs.new_tag }}
 
-      - name: Test Docker image
+      - name: Test Docker the docker image
         run: |
-          docker run --rm -d -p 8080:8080 --name my-app ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app:${{ steps.bump_version.outputs.new_tag }}
+          docker run --rm -d -p 5000:5000 --name my-app ${{ secrets.DOCKER_HUB_USERNAME }}/maven-app:${{ steps.bump_version.outputs.new_tag }}
           sleep 5  
           docker ps 
           docker logs my-app || true 
@@ -83,13 +83,13 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/simple-java-maven-app:${{ steps.bump_version.outputs.new_tag }}
+          tags: ${{ secrets.DOCKER_HUB_USERNAME }}/maven-app:${{ steps.bump_version.outputs.new_tag }}
 
-      - name: Create PR
+      - name: Create PR to master (deployment) branch
         if: success()
         uses: repo-sync/pull-request@v2
         with:
           destination_branch: "master"
           pr_title: "CI updates"
-          pr_body: "Updates from CI"
+          pr_body: "Updates from CI to deploy"
           github_token: ${{ secrets.GITHUB_TOKEN }}
